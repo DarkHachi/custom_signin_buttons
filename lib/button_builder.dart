@@ -1,10 +1,13 @@
 // ignore_for_file: prefer_const_constructors_in_immutables, prefer_const_constructors
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class CustomSignInButton extends StatelessWidget {
   final double borderRadius;
   final Color buttonColor;
-  final IconData customIcon;
+
+  /// [IconData] for Material icons, or [FaIconData] for Font Awesome icons.
+  final Object customIcon;
   final double elevation;
   final double height;
   final Color iconColor;
@@ -45,7 +48,7 @@ class CustomSignInButton extends StatelessWidget {
     this.iconLeftPadding = 0,
     this.iconTopPadding = 0,
     this.imageSize = 25,
-    Key? key,
+    super.key,
     this.mini = false,
     this.small = false,
     this.onPressed,
@@ -61,94 +64,113 @@ class CustomSignInButton extends StatelessWidget {
     this.width = double.infinity,
     this.borderColor = Colors.transparent,
     this.borderWidth = 0.0,
-  }) : super(key: key);
+  });
+
+  Widget _buildCustomIcon(bool small) {
+    final size = small ? 32.0 : iconSize;
+    if (customIcon is FaIconData) {
+      return FaIcon(customIcon as FaIconData, color: iconColor, size: size);
+    }
+    if (customIcon is IconData) {
+      return Icon(customIcon as IconData, color: iconColor, size: size);
+    }
+    throw ArgumentError.value(
+      customIcon,
+      'customIcon',
+      'Must be IconData or FaIconData',
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     final showBorder = borderWidth > 0;
     return Container(
-        height: mini
-            ? 40
-            : small
-                ? 55
-                : height,
-        width: mini
-            ? 40
-            : small
-                ? 55
-                : width,
-        decoration: !useGradient
-            ? BoxDecoration(
-                color: buttonColor,
+      height: mini
+          ? 40
+          : small
+          ? 55
+          : height,
+      width: mini
+          ? 40
+          : small
+          ? 55
+          : width,
+      decoration: !useGradient
+          ? BoxDecoration(
+              color: buttonColor,
+              borderRadius: BorderRadius.circular(borderRadius),
+              border: showBorder
+                  ? Border.all(color: borderColor, width: borderWidth)
+                  : null,
+            )
+          : BoxDecoration(
+              gradient: setGradient,
+              borderRadius: BorderRadius.circular(borderRadius),
+              border: showBorder
+                  ? Border.all(color: borderColor, width: borderWidth)
+                  : null,
+            ),
+      child: MaterialButton(
+        minWidth: 40,
+        padding: EdgeInsets.only(
+          left: small ? -2 : iconLeftPadding,
+          top: small ? 4 : 0,
+          bottom: small ? 4 : 0,
+        ),
+        splashColor: splashColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(borderRadius),
+        ),
+        onPressed: onPressed ?? () {},
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                color: imageBackgroundColor,
                 borderRadius: BorderRadius.circular(borderRadius),
-                border: showBorder 
-                    ? Border.all(color: borderColor, width: borderWidth)
-                    : null,
-              )
-            : BoxDecoration(
-                gradient: setGradient,
-                borderRadius: BorderRadius.circular(borderRadius),
-                border: showBorder 
-                    ? Border.all(color: borderColor, width: borderWidth)
-                    : null,
               ),
-        child: MaterialButton(
-          minWidth: 40,
-          padding: EdgeInsets.only(
-            left: small ? -2 : iconLeftPadding,
-            top: small ? 4 : 0,
-            bottom: small ? 4 : 0,
-          ),
-          splashColor: splashColor,
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(borderRadius)),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Container(
-                  decoration: BoxDecoration(
-                    color: imageBackgroundColor,
-                    borderRadius: BorderRadius.circular(borderRadius),
-                  ),
-                  padding: imagePadding,
-                  margin: imageMargin,
-                  child: Container(
-                    alignment: Alignment.center,
-                    child: useGoogleImage
-                        ? Image(
-                            image: AssetImage('assets/google.png',
-                                package: 'custom_signin_buttons'),
-                            height: small ? 34 : imageSize,
-                          )
-                        : setAssetImage.assetName.isNotEmpty
-                            ? Image(
-                                image: setAssetImage,
-                                height: small ? 34 : imageSize,
-                              )
-                            : Icon(
-                                customIcon,
-                                color: iconColor,
-                                size: small ? 32 : iconSize,
-                              ),
-                  )),
-              (mini || small)
-                  ? SizedBox()
-                  : Flexible(
-                      child: Center(
-                        child: Text(showText ? text : '',
-                            style: TextStyle(
-                              fontSize: textSize,
-                              fontWeight: useGoogleImage ? FontWeight.w500 : FontWeight.w600,
-                              color: textColor,
-                              fontFamily: useGoogleImage ? 'Roboto' : null,
-                            )),
+              padding: imagePadding,
+              margin: imageMargin,
+              child: Container(
+                alignment: Alignment.center,
+                child: useGoogleImage
+                    ? Image(
+                        image: AssetImage(
+                          'assets/google.png',
+                          package: 'custom_signin_buttons',
+                        ),
+                        height: small ? 34 : imageSize,
+                      )
+                    : setAssetImage.assetName.isNotEmpty
+                    ? Image(
+                        image: setAssetImage,
+                        height: small ? 34 : imageSize,
+                      )
+                    : _buildCustomIcon(small),
+              ),
+            ),
+            (mini || small)
+                ? SizedBox()
+                : Flexible(
+                    child: Center(
+                      child: Text(
+                        showText ? text : '',
+                        style: TextStyle(
+                          fontSize: textSize,
+                          fontWeight: useGoogleImage
+                              ? FontWeight.w500
+                              : FontWeight.w600,
+                          color: textColor,
+                          fontFamily: useGoogleImage ? 'Roboto' : null,
+                        ),
                       ),
                     ),
-            ],
-          ),
-          onPressed: onPressed ?? () {},
+                  ),
+          ],
         ),
+      ),
     );
   }
 }

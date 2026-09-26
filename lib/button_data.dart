@@ -20,7 +20,7 @@ class SignInButton extends StatelessWidget {
   final bool spanish;
 
   SignInButton({
-    Key? key,
+    super.key,
     this.button = Button.YoutubeDark,
     this.borderRadius = 5,
     this.height = 40,
@@ -35,7 +35,7 @@ class SignInButton extends StatelessWidget {
     this.textSize = 15,
     this.width = double.infinity,
     this.spanish = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
